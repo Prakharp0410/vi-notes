@@ -89,14 +89,6 @@ npm run build
 
 Session data is stored in memory, so it resets when the server restarts.
 
-## Why It Is Kept Simple
-
-This is intentionally lightweight for easy review and submission:
-
-- no database setup
-- no desktop runtime setup
-- direct, readable code paths
-
 ## License
 
 MIT
