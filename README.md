@@ -1,130 +1,102 @@
 # Vi-Notes
 
-**Vi-Notes** is an authenticity verification platform designed to distinguish genuine human-written content from AI-generated or AI-assisted text. The system focuses on analyzing **writing behavior** alongside **statistical and linguistic characteristics** of the text to establish reliable authorship verification.
+Vi-Notes is a small project built to experiment with writing-authenticity signals, starting with keystroke timing.
 
-This repository represents the **design and conceptual foundation** for the Vi-Notes system.
+The goal of this version is simple: track how someone types in a writing session without storing what they actually type.
 
----
+## What This Version Includes
 
-## Motivation
+- A React + TypeScript writing interface
+- A Node.js + Express API (TypeScript)
+- In-memory session storage (no database)
+- Session lifecycle: start, collect keystrokes, end, inspect
 
-With the widespread availability of AI writing tools, verifying true human authorship has become increasingly challenging. Most existing detection methods rely primarily on textual analysis, which can be inconsistent and easy to bypass.
+## What Gets Captured
 
-Vi-Notes approaches this problem by combining:
-- Behavioral signals from the writing process
-- Statistical analysis of the written content
-- Correlation between how content is written and what is written
+For each keyboard event during an active session, the app stores:
 
----
+- `timestamp`
+- `eventType` (`keydown` or `keyup`)
+- `keyClass` (printable, whitespace, modifier, navigation, editing, system, other)
+- `interKeyIntervalMs` (time between consecutive keydown events)
+- `holdDurationMs` (time between keydown and keyup for a key)
+- `isRepeat`
+- `cursorPosition`
+- `selectionLength`
 
-## Core Idea
+Privacy note:
 
-Human writing naturally includes:
-- Variable typing speeds
-- Pauses during thinking
-- Revisions during idea formation
-- Irregular sentence structures
-- A relationship between content complexity and editing frequency
+- Raw typed characters are not sent as keystroke data.
 
-AI-generated or pasted text often lacks these behavioral signatures.
+## Project Structure
 
-Vi-Notes is designed to capture and analyze these characteristics to assess authorship authenticity.
+- `client` - React frontend
+- `server` - Express backend
 
----
+## API Endpoints
 
-## Key Features
+- `POST /api/sessions/start` start a session
+- `POST /api/sessions/:sessionId/keystrokes` send a batch of keystroke events
+- `POST /api/sessions/:sessionId/end` end a session
+- `GET /api/sessions` list session summaries
+- `GET /api/sessions/:sessionId` get full session data
+- `GET /api/health` health check
 
-### Writing Session Monitoring
-- Capture keystroke timing metadata (not raw key content)
-- Track pauses, deletions, edits, and writing flow
-- Detect pasted or externally inserted text blocks
+## Run Locally (Windows)
 
-### Behavioral Pattern Analysis
-- Pause distribution before sentences and paragraphs
-- Typing speed variance
-- Revision frequency relative to text complexity
-- Micro-pauses around punctuation and structural boundaries
+1. Install Node.js 20+
+2. Install dependencies:
 
-### Textual Statistical Analysis
-- Sentence length variation
-- Vocabulary diversity metrics
-- Stylistic consistency analysis
-- Linguistic irregularities typical of human writing
+```powershell
+npm install
+```
 
-### Cross-Verification Engine
-- Correlate keyboard behavior with text evolution
-- Identify mismatches between behavioral data and content
-- Flag suspicious uniformity patterns
+3. Start both frontend and backend:
 
-### Authenticity Reports
-- Confidence score for human authorship
-- Highlighted suspicious segments
-- Supporting behavioral and textual indicators
-- Shareable verification summaries
+```powershell
+npm run dev
+```
 
----
+4. Open the app in your browser:
 
-## Tech Stack (MERN Architecture)
+- `http://localhost:5173`
 
-### Frontend
-- React
-- TypeScript
-- Electron for desktop-level keyboard event access
+5. Typical flow in the app:
 
-### Backend
-- Node.js
-- Express.js
-- RESTful APIs for session handling and analysis
+- Click **Start Session**
+- Type in the editor
+- Click **End Session**
 
-### Database
-- MongoDB
-- Encrypted storage for writing sessions, keystroke metadata, and reports
+6. Check stored session data from API:
 
-### Machine Learning
-- TensorFlow / PyTorch
-- Supervised learning for human vs AI-assisted writing
-- Unsupervised anomaly detection
-- NLP-based statistical signature analysis
+```powershell
+curl http://localhost:4000/api/sessions
+```
 
----
+## Fixed Local URLs
 
-## Privacy & Ethics
+- API server runs on `http://localhost:4000`
+- Frontend runs on `http://localhost:5173`
+- Frontend API base is `http://localhost:4000/api`
 
-Vi-Notes is designed with privacy-first principles:
+## Build
 
-- No storage of raw keystroke content
-- Only timing, frequency, and structural metadata is collected
-- Encrypted data storage
-- User-controlled session tracking
-- Monitoring limited strictly to active writing sessions
+```powershell
+npm run build
+```
 
----
+## Current Limitation
 
-## Project Goals
+Session data is stored in memory, so it resets when the server restarts.
 
-- Restore trust in written content authenticity
-- Differentiate between human-written, AI-assisted, and AI-generated text
-- Adapt detection methods as AI writing tools evolve
-- Maintain ethical, transparent, and privacy-conscious verification
+## Why It Is Kept Simple
 
----
+This is intentionally lightweight for easy review and submission:
 
-## Repository Scope
-
-This repository currently serves as:
-- A design reference
-- A research and experimentation space
-- A foundation for future MERN-based implementation
-
----
-
-## Contributing
-
-Contributions are welcome, especially for **feature requests and their implementation**.  
-If you are interested in working on an existing feature request or proposing a new one, please open or comment on an issue to start the discussion.
-
----
+- no database setup
+- no desktop runtime setup
+- direct, readable code paths
 
 ## License
 
-This project is licensed under the MIT License.
+MIT
